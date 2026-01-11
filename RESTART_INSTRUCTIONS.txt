@@ -1,0 +1,45 @@
+╔══════════════════════════════════════════════════════════════╗
+║          BROTLI COMPRESSION FIX - RESTART REQUIRED          ║
+╚══════════════════════════════════════════════════════════════╝
+
+Your Unity build uses Brotli compression (.br files), which needs
+special server configuration.
+
+✅ WHAT'S BEEN FIXED:
+   • Added src/setupProxy.js to configure dev server headers
+   • Added express dependency to package.json
+   • Server will now send "Content-Encoding: br" header
+
+🔄 STEPS TO FIX:
+
+1. STOP the current dev server
+   → In the terminal, press: Ctrl + C
+   → Type: Y (to confirm)
+
+2. INSTALL express (if not already installed)
+   → Run: npm install
+
+3. RESTART the dev server
+   → Run: npm start
+
+4. REFRESH your browser
+   → The Unity game should now load!
+
+───────────────────────────────────────────────────────────────
+
+⚠️  ALTERNATIVE SOLUTION (If above doesn't work):
+
+Rebuild your Unity project with different compression:
+
+1. Open your Unity project
+2. File → Build Settings → Player Settings
+3. Publishing Settings → Compression Format
+4. Change to: "Gzip" or "Disabled"
+5. Rebuild for WebGL
+6. Replace public/Build11 folder with new build
+
+Gzip works out of the box without any server configuration!
+
+───────────────────────────────────────────────────────────────
+
+

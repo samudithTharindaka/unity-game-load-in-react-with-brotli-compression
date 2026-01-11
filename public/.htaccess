@@ -1,0 +1,22 @@
+# Enable Brotli compression for Unity WebGL builds
+<IfModule mod_headers.c>
+    # Brotli compressed files
+    <FilesMatch "\.br$">
+        Header set Content-Encoding br
+    </FilesMatch>
+    
+    # Set correct MIME types
+    <FilesMatch "\.data\.br$">
+        Header set Content-Type application/octet-stream
+    </FilesMatch>
+    
+    <FilesMatch "\.wasm\.br$">
+        Header set Content-Type application/wasm
+    </FilesMatch>
+    
+    <FilesMatch "\.js\.br$">
+        Header set Content-Type application/javascript
+    </FilesMatch>
+</IfModule>
+
+

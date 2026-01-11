@@ -1,0 +1,47 @@
+╔══════════════════════════════════════════════════════════════╗
+║          UNITY WEBGL REACT APP - QUICK START                ║
+╚══════════════════════════════════════════════════════════════╝
+
+📦 STEP 1: INSTALL
+   → Double-click: install.bat
+   → OR run in Command Prompt: npm install
+
+🚀 STEP 2: START
+   → Double-click: start.bat
+   → OR run in Command Prompt: npm start
+
+🌐 STEP 3: OPEN BROWSER
+   → Automatically opens at: http://localhost:3000
+
+🎮 STEP 4: PLAY!
+   → Click "Fullscreen" button for fullscreen mode
+   → Press ESC to exit fullscreen
+
+───────────────────────────────────────────────────────────────
+
+📁 PROJECT STRUCTURE:
+   ├── src/                  (React source code)
+   │   ├── App.jsx          (Main app with fullscreen)
+   │   └── components/      (Unity player component)
+   ├── public/              (Static files)
+   │   └── Build11/         (Your Unity WebGL build)
+   └── package.json         (Dependencies)
+
+───────────────────────────────────────────────────────────────
+
+⚙️ COMMANDS:
+   npm start        → Start development server
+   npm run build    → Create production build
+   npm test         → Run tests
+
+───────────────────────────────────────────────────────────────
+
+❓ TROUBLESHOOTING:
+   • "npm not found" → Install Node.js from nodejs.org
+   • PowerShell error → Use install.bat or Command Prompt
+   • Game not loading → Check Build11 is in public/ folder
+   
+📖 For detailed help, see: SETUP_GUIDE.md or README.md
+
+───────────────────────────────────────────────────────────────
+
