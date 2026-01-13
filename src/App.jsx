@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import UnityPlayer from './components/UnityPlayer';
+import UnityDebugger from './components/UnityDebugger';
 import './App.css';
 
 function App() {
@@ -75,6 +76,8 @@ function App() {
       <footer className="app-footer">
         <p>Press F11 or click the fullscreen button for the best experience</p>
       </footer>
+      
+      <UnityDebugger />
     </div>
   );
 }

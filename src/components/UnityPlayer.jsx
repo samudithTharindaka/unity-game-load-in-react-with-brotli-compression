@@ -13,22 +13,29 @@ const UnityPlayer = ({ onLoaded }) => {
     const loadUnityGame = async () => {
       try {
         const canvas = canvasRef.current;
-        const buildUrl = process.env.PUBLIC_URL + '/Build11/Build';
-        const loaderUrl = buildUrl + '/Build11.loader.js';
+        // Use relative paths like Unity's original index.html
+        // Unity expects paths relative to where the build is served from
+        const buildUrl = process.env.PUBLIC_URL + '/unity/Build12/Build';
+        const loaderUrl = buildUrl + '/Build15.loader.js';
+        // StreamingAssets should be relative to Build12 folder, not absolute
+        // Unity resolves this relative to the build root
+        const streamingAssetsUrl = process.env.PUBLIC_URL + '/unity/Build12/StreamingAssets';
 
         const config = {
-          dataUrl: buildUrl + '/Build11.data.br',
-          frameworkUrl: buildUrl + '/Build11.framework.js.br',
-          codeUrl: buildUrl + '/Build11.wasm.br',
-          streamingAssetsUrl: 'StreamingAssets',
+          dataUrl: buildUrl + '/Build15.data.br',
+          frameworkUrl: buildUrl + '/Build15.framework.js.br',
+          codeUrl: buildUrl + '/Build15.wasm.br',
+          streamingAssetsUrl: streamingAssetsUrl,
           companyName: 'DefaultCompany',
           productName: 'My project (1)',
-          productVersion: '0.1.0',
+          productVersion: '0.2.0', // Match Unity's version
           showBanner: (msg, type) => {
+            console.log(`Unity Banner [${type}]:`, msg);
             if (type === 'error') {
               setError(msg);
+              console.error('Unity Error:', msg);
             } else if (type === 'warning') {
-              console.warn(msg);
+              console.warn('Unity Warning:', msg);
             }
           },
         };
@@ -51,14 +58,16 @@ const UnityPlayer = ({ onLoaded }) => {
                 }
               })
               .catch((message) => {
-                setError(message);
+                console.error('Unity Instance Creation Failed:', message);
+                setError(`Failed to create Unity instance: ${message}`);
                 setIsLoading(false);
               });
           }
         };
 
-        script.onerror = () => {
-          setError('Failed to load Unity loader script');
+        script.onerror = (error) => {
+          console.error('Failed to load Unity loader script:', error);
+          setError(`Failed to load Unity loader script from: ${loaderUrl}`);
           setIsLoading(false);
         };
 
@@ -96,20 +105,20 @@ const UnityPlayer = ({ onLoaded }) => {
           <div 
             className="unity-logo"
             style={{
-              backgroundImage: `url(${process.env.PUBLIC_URL}/Build11/TemplateData/unity-logo-dark.png)`
+              backgroundImage: `url(${process.env.PUBLIC_URL}/unity/Build12/TemplateData/unity-logo-dark.png)`
             }}
           ></div>
           <div 
             className="unity-progress-bar-empty"
             style={{
-              backgroundImage: `url(${process.env.PUBLIC_URL}/Build11/TemplateData/progress-bar-empty-dark.png)`
+              backgroundImage: `url(${process.env.PUBLIC_URL}/unity/Build12/TemplateData/progress-bar-empty-dark.png)`
             }}
           >
             <div 
               className="unity-progress-bar-full" 
               style={{ 
                 width: `${loadingProgress}%`,
-                backgroundImage: `url(${process.env.PUBLIC_URL}/Build11/TemplateData/progress-bar-full-dark.png)`
+                backgroundImage: `url(${process.env.PUBLIC_URL}/unity/Build12/TemplateData/progress-bar-full-dark.png)`
               }}
             ></div>
           </div>
