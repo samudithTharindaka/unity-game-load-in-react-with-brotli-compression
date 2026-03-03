@@ -15,20 +15,20 @@ const UnityPlayer = ({ onLoaded }) => {
         const canvas = canvasRef.current;
         // Use relative paths like Unity's original index.html
         // Unity expects paths relative to where the build is served from
-        const buildUrl = process.env.PUBLIC_URL + '/unity/Build12/Build';
-        const loaderUrl = buildUrl + '/Build15.loader.js';
-        // StreamingAssets should be relative to Build12 folder, not absolute
+        const buildUrl = process.env.PUBLIC_URL + '/unity/buildAds32/Build';
+        const loaderUrl = buildUrl + '/buildAds32.loader.js';
+        // StreamingAssets should be relative to buildAds32 folder, not absolute
         // Unity resolves this relative to the build root
-        const streamingAssetsUrl = process.env.PUBLIC_URL + '/unity/Build12/StreamingAssets';
+        const streamingAssetsUrl = process.env.PUBLIC_URL + '/unity/buildAds32/StreamingAssets';
 
         const config = {
-          dataUrl: buildUrl + '/Build15.data.br',
-          frameworkUrl: buildUrl + '/Build15.framework.js.br',
-          codeUrl: buildUrl + '/Build15.wasm.br',
+          dataUrl: buildUrl + '/buildAds32.data.br',
+          frameworkUrl: buildUrl + '/buildAds32.framework.js.br',
+          codeUrl: buildUrl + '/buildAds32.wasm.br',
           streamingAssetsUrl: streamingAssetsUrl,
           companyName: 'DefaultCompany',
-          productName: 'My project (1)',
-          productVersion: '0.2.0', // Match Unity's version
+          productName: 'ads poc',
+          productVersion: '0.1', // Match Unity's version
           showBanner: (msg, type) => {
             console.log(`Unity Banner [${type}]:`, msg);
             if (type === 'error') {
@@ -105,20 +105,20 @@ const UnityPlayer = ({ onLoaded }) => {
           <div 
             className="unity-logo"
             style={{
-              backgroundImage: `url(${process.env.PUBLIC_URL}/unity/Build12/TemplateData/unity-logo-dark.png)`
+              backgroundImage: `url(${process.env.PUBLIC_URL}/unity/buildAds32/TemplateData/unity-logo-dark.png)`
             }}
           ></div>
           <div 
             className="unity-progress-bar-empty"
             style={{
-              backgroundImage: `url(${process.env.PUBLIC_URL}/unity/Build12/TemplateData/progress-bar-empty-dark.png)`
+              backgroundImage: `url(${process.env.PUBLIC_URL}/unity/buildAds32/TemplateData/progress-bar-empty-dark.png)`
             }}
           >
             <div 
               className="unity-progress-bar-full" 
               style={{ 
                 width: `${loadingProgress}%`,
-                backgroundImage: `url(${process.env.PUBLIC_URL}/unity/Build12/TemplateData/progress-bar-full-dark.png)`
+                backgroundImage: `url(${process.env.PUBLIC_URL}/unity/buildAds32/TemplateData/progress-bar-full-dark.png)`
               }}
             ></div>
           </div>

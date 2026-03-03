@@ -1,11 +1,16 @@
-// Custom development server with Brotli support for Unity WebGL
+// Production server with Brotli support for Unity WebGL
+// Optimized for performance - matches itch.io deployment
 const express = require('express');
 const path = require('path');
 const https = require('https');
 const http = require('http');
+const compression = require('compression');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+
+// Enable gzip compression for better performance
+app.use(compression());
 
 // S3 bucket URL for Addressables
 const S3_BASE_URL = 'https://samu-unity-game-assets.s3.ap-southeast-2.amazonaws.com/WebGL';
@@ -82,14 +87,61 @@ app.use('/unity-remote', (req, res) => {
   });
 });
 
-// Serve static files from public folder (Unity files must be served before catch-all)
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static files with aggressive caching (production optimization)
+const staticOptions = {
+  maxAge: '1y', // Cache for 1 year (like itch.io)
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, path) => {
+    // Unity files should be cached aggressively
+    if (path.includes('/unity/') || path.includes('.br') || path.includes('.wasm') || path.includes('.data')) {
+      res.set('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+    // HTML should be cached less aggressively
+    if (path.endsWith('.html')) {
+      res.set('Cache-Control', 'public, max-age=0, must-revalidate');
+    }
+  }
+};
 
-// Serve the React build (for production)
-app.use(express.static(path.join(__dirname, 'build')));
+// Serve static files from public folder (Unity files must be served before catch-all)
+app.use(express.static(path.join(__dirname, 'public'), staticOptions));
+
+// Serve the React build (for production) with optimizations
+app.use(express.static(path.join(__dirname, 'build'), staticOptions));
+
+// Error handling middleware (must be before catch-all route)
+app.use((err, req, res, next) => {
+  // Handle URL decoding errors gracefully
+  if (err instanceof URIError && err.message.includes('decode')) {
+    console.warn(`[Warning] Invalid URL parameter: ${req.url}`);
+    // Clean the URL and try to serve the file
+    const cleanUrl = req.url.replace(/%PUBLIC_URL%/g, '');
+    if (cleanUrl !== req.url) {
+      req.url = cleanUrl;
+      return next();
+    }
+    // If it's a React Router route, serve index.html
+    const buildIndex = path.join(__dirname, 'build', 'index.html');
+    if (require('fs').existsSync(buildIndex)) {
+      return res.sendFile(buildIndex);
+    }
+    return res.status(404).send('File not found');
+  }
+  next(err);
+});
 
 // Fallback to index.html for React Router (but NOT for Unity files)
 app.get('*', (req, res, next) => {
+  // Skip invalid URLs with %PUBLIC_URL% or other encoded characters
+  if (req.url.includes('%PUBLIC_URL%') || req.url.includes('%')) {
+    const buildIndex = path.join(__dirname, 'build', 'index.html');
+    if (require('fs').existsSync(buildIndex)) {
+      return res.sendFile(buildIndex);
+    }
+    return res.status(404).send('File not found');
+  }
+  
   // Don't intercept Unity build files or other static assets
   if (req.url.includes('/unity/') || 
       req.url.includes('.js') || 

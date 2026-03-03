@@ -27,6 +27,11 @@ yarn-error.log*
 /public/Build11/Build/*.wasm
 /public/Build11/Build/*.data
 
+# Ignore large Unity build files to avoid push timeouts
+/public/unity/buildAds32/Build/*.br
+/public/unity/buildAds32/Build/*.wasm
+/public/unity/buildAds32/Build/*.data
+
 # Keep Unity build structure but ignore large files
 # Uncomment the line below if you want to ignore the entire Build11 folder
 # /public/Build11/
