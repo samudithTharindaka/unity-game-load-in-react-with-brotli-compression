@@ -1,79 +1,69 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import './UnityPlayer.css';
+
+/** WebGL file prefix (e.g. NovaStore-test1.loader.js) */
+const UNITY_BUILD_NAME = 'NovaStore-test1';
+/** Outer folder under public/unity/ where you placed the build */
+const UNITY_HOST_FOLDER = 'NovaStore-test1';
+/**
+ * Unity often outputs a subfolder with the same name as the build; if you copied that whole
+ * folder into public/unity/NovaStore-test1/, assets live at .../NovaStore-test1/NovaStore-test1/
+ */
+const unityRoot = `${process.env.PUBLIC_URL}/unity/${UNITY_HOST_FOLDER}/${UNITY_BUILD_NAME}`;
 
 const UnityPlayer = ({ onLoaded }) => {
   const canvasRef = useRef(null);
-  const containerRef = useRef(null);
   const unityInstanceRef = useRef(null);
-  const [loadingProgress, setLoadingProgress] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
   useEffect(() => {
     const loadUnityGame = async () => {
       try {
         const canvas = canvasRef.current;
-        // Use relative paths like Unity's original index.html
-        // Unity expects paths relative to where the build is served from
-        const buildUrl = process.env.PUBLIC_URL + '/unity/buildAds32/Build';
-        const loaderUrl = buildUrl + '/buildAds32.loader.js';
-        // StreamingAssets should be relative to buildAds32 folder, not absolute
-        // Unity resolves this relative to the build root
-        const streamingAssetsUrl = process.env.PUBLIC_URL + '/unity/buildAds32/StreamingAssets';
+        const buildUrl = `${unityRoot}/Build`;
+        const loaderUrl = `${buildUrl}/${UNITY_BUILD_NAME}.loader.js`;
+        const streamingAssetsUrl = `${unityRoot}/StreamingAssets`;
 
         const config = {
-          dataUrl: buildUrl + '/buildAds32.data.br',
-          frameworkUrl: buildUrl + '/buildAds32.framework.js.br',
-          codeUrl: buildUrl + '/buildAds32.wasm.br',
+          dataUrl: `${buildUrl}/${UNITY_BUILD_NAME}.data.br`,
+          frameworkUrl: `${buildUrl}/${UNITY_BUILD_NAME}.framework.js.br`,
+          codeUrl: `${buildUrl}/${UNITY_BUILD_NAME}.wasm.br`,
           streamingAssetsUrl: streamingAssetsUrl,
           companyName: 'DefaultCompany',
-          productName: 'ads poc',
-          productVersion: '0.1', // Match Unity's version
+          productName: 'NovaStore',
+          productVersion: '0.1',
           showBanner: (msg, type) => {
-            console.log(`Unity Banner [${type}]:`, msg);
             if (type === 'error') {
-              setError(msg);
-              console.error('Unity Error:', msg);
+              console.error('Unity:', msg);
             } else if (type === 'warning') {
-              console.warn('Unity Warning:', msg);
+              console.warn('Unity:', msg);
             }
           },
         };
 
-        // Load the Unity loader script
         const script = document.createElement('script');
         script.src = loaderUrl;
         script.async = true;
 
         script.onload = () => {
           if (window.createUnityInstance) {
-            window.createUnityInstance(canvas, config, (progress) => {
-              setLoadingProgress(Math.round(progress * 100));
-            })
+            window.createUnityInstance(canvas, config, () => {})
               .then((unityInstance) => {
                 unityInstanceRef.current = unityInstance;
-                setIsLoading(false);
                 if (onLoaded) {
                   onLoaded(unityInstance);
                 }
               })
               .catch((message) => {
-                console.error('Unity Instance Creation Failed:', message);
-                setError(`Failed to create Unity instance: ${message}`);
-                setIsLoading(false);
+                console.error('Unity instance failed:', message);
               });
           }
         };
 
-        script.onerror = (error) => {
-          console.error('Failed to load Unity loader script:', error);
-          setError(`Failed to load Unity loader script from: ${loaderUrl}`);
-          setIsLoading(false);
+        script.onerror = () => {
+          console.error('Unity loader failed:', loaderUrl);
         };
 
         document.body.appendChild(script);
 
-        // Cleanup
         return () => {
           if (unityInstanceRef.current) {
             unityInstanceRef.current.Quit();
@@ -83,8 +73,7 @@ const UnityPlayer = ({ onLoaded }) => {
           }
         };
       } catch (err) {
-        setError(err.message);
-        setIsLoading(false);
+        console.error(err);
       }
     };
 
@@ -92,49 +81,10 @@ const UnityPlayer = ({ onLoaded }) => {
   }, [onLoaded]);
 
   return (
-    <div className="unity-player-container" ref={containerRef}>
-      <canvas 
-        ref={canvasRef} 
-        id="unity-canvas" 
-        className="unity-canvas"
-        tabIndex="-1"
-      />
-      
-      {isLoading && (
-        <div className="unity-loading-bar">
-          <div 
-            className="unity-logo"
-            style={{
-              backgroundImage: `url(${process.env.PUBLIC_URL}/unity/buildAds32/TemplateData/unity-logo-dark.png)`
-            }}
-          ></div>
-          <div 
-            className="unity-progress-bar-empty"
-            style={{
-              backgroundImage: `url(${process.env.PUBLIC_URL}/unity/buildAds32/TemplateData/progress-bar-empty-dark.png)`
-            }}
-          >
-            <div 
-              className="unity-progress-bar-full" 
-              style={{ 
-                width: `${loadingProgress}%`,
-                backgroundImage: `url(${process.env.PUBLIC_URL}/unity/buildAds32/TemplateData/progress-bar-full-dark.png)`
-              }}
-            ></div>
-          </div>
-          <div className="unity-loading-text">{loadingProgress}%</div>
-        </div>
-      )}
-      
-      {error && (
-        <div className="unity-error">
-          <p>Error loading Unity game:</p>
-          <p>{error}</p>
-        </div>
-      )}
+    <div className="unity-player-container">
+      <canvas ref={canvasRef} id="unity-canvas" className="unity-canvas" tabIndex="-1" />
     </div>
   );
 };
 
 export default UnityPlayer;
-
